@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   # 后端服务
   ruoyi-backend:
@@ -5,16 +7,23 @@ services:
       context: ./api/RuoYi-Vue
       dockerfile: Dockerfile
     container_name: ruoyi-backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql
-      - redis
+    restart: unless-stopped
     environment:
-      - SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:mysql://mysql:3306/blog_system?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+      - TZ=Asia/Shanghai
+      - RUOYI_PROFILE=/data/ruoyi/uploadPath
+      - SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:mysql://mysql:3306/blog_system?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
       - SPRING_DATASOURCE_DRUID_MASTER_USERNAME=root
       - SPRING_DATASOURCE_DRUID_MASTER_PASSWORD=root
       - SPRING_REDIS_HOST=redis
+    ports:
+      - "8080:8080"
+    volumes:
+      - ruoyi-uploads:/data/ruoyi/uploadPath
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - ruoyi-net
 
@@ -24,10 +33,12 @@ services:
       context: ./admin/RuoYi-Vue3
       dockerfile: Dockerfile
     container_name: ruoyi-frontend-admin
+    restart: unless-stopped
     ports:
       - "80:80" # 管理后台映射到 80 端口
     depends_on:
-      - ruoyi-backend
+      ruoyi-backend:
+        condition: service_started
     networks:
       - ruoyi-net
 
@@ -37,10 +48,12 @@ services:
       context: ./web/my-vitesse-app
       dockerfile: Dockerfile
     container_name: ruoyi-frontend-web
+    restart: unless-stopped
     ports:
       - "81:80" # 博客前台映射到 81 端口
     depends_on:
-      - ruoyi-backend
+      ruoyi-backend:
+        condition: service_started
     networks:
       - ruoyi-net
 
@@ -48,13 +61,25 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    restart: unless-stopped
+    command: >-
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
     environment:
+      - TZ=Asia/Shanghai
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=blog_system
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./api/RuoYi-Vue/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - ruoyi-net
 
@@ -62,10 +87,16 @@ services:
   redis:
     image: redis:6.2
     container_name: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - ruoyi-net
 
@@ -78,3 +109,4 @@ networks:
 volumes:
   mysql-data:
   redis-data:
+  ruoyi-uploads:
