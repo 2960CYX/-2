@@ -1,10 +1,6 @@
-# Node/Vite/Vue common ignores
-**/node_modules/
-**/.cache/
-**/dist/
-**/.output/
-**/.vite/
-**/coverage/
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
@@ -13,24 +9,40 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Env files
-.env
-.env.*
-!.env.example
-!.env
-!.env.*
+# Environment
+# 保留 .env 及 .env.* 以便交付可直接运行
+# 如需本地敏感覆盖，可使用 *.local 文件并手动排除
 
-# Allow committing development env files (requested)
-!.env.development
-!**/.env.development
-!admin/RuoYi-Vue3/.env.development
-!web/my-vitesse-app/.env.development
+# Node/Frontend
+**/node_modules/
+**/dist/
+**/build/
+**/.cache/
+**/coverage/
+**/.vite/
+**/.temp/
+**/.output/
+**/.eslintcache
+**/*.tsbuildinfo
 
-# OS files
-.DS_Store
-Thumbs.db
+# Common frontend frameworks
+**/.nuxt/
+**/.next/
+**/out/
 
-# Editor swap/backup files
-*.swp
-*.swo
-*~
+# Java/Maven
+**/target/
+**/*.iml
+.idea/
+.project
+.settings/
+.classpath
+.mvn/wrapper/maven-wrapper.jar
+
+# Cypress artifacts
+**/cypress/videos/
+**/cypress/screenshots/
+
+# Generated docs
+*.md
+!README.md

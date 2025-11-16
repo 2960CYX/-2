@@ -1,23 +1,20 @@
 # --- 第一阶段：构建前端静态文件 ---
 FROM node:16-alpine AS builder
 
-# 安装 pnpm
-RUN npm install -g pnpm
-
 # 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+# 复制 package.json 和 yarn.lock
+COPY package.json yarn.lock ./
 
 # 安装依赖，使用淘宝镜像源加速
-RUN pnpm install --registry=https://registry.npmmirror.com
+RUN yarn install --registry=https://registry.npmmirror.com
 
 # 复制所有源代码
 COPY . .
 
 # 执行构建
-RUN pnpm build
+RUN yarn build
 
 # --- 第二阶段：创建 Nginx 运行镜像 ---
 FROM nginx:1.21.0-alpine
@@ -29,7 +26,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/
 
 # 从构建阶段复制打包好的静态文件到 Nginx 的 web 根目录
-# Vitesse build 默认输出到 dist 目录
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 暴露 Nginx 监听的端口

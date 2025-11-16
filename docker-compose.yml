@@ -1,0 +1,80 @@
+services:
+  # 后端服务
+  ruoyi-backend:
+    build:
+      context: ./api/RuoYi-Vue
+      dockerfile: Dockerfile
+    container_name: ruoyi-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:mysql://mysql:3306/blog_system?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+      - SPRING_DATASOURCE_DRUID_MASTER_USERNAME=root
+      - SPRING_DATASOURCE_DRUID_MASTER_PASSWORD=root
+      - SPRING_REDIS_HOST=redis
+    networks:
+      - ruoyi-net
+
+  # RuoYi-Vue3 前端服务
+  ruoyi-frontend-admin:
+    build:
+      context: ./admin/RuoYi-Vue3
+      dockerfile: Dockerfile
+    container_name: ruoyi-frontend-admin
+    ports:
+      - "80:80" # 管理后台映射到 80 端口
+    depends_on:
+      - ruoyi-backend
+    networks:
+      - ruoyi-net
+
+  # my-vitesse-app 前端服务
+  ruoyi-frontend-web:
+    build:
+      context: ./web/my-vitesse-app
+      dockerfile: Dockerfile
+    container_name: ruoyi-frontend-web
+    ports:
+      - "81:80" # 博客前台映射到 81 端口
+    depends_on:
+      - ruoyi-backend
+    networks:
+      - ruoyi-net
+
+  # MySQL 数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=blog_system
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - ruoyi-net
+
+  # Redis 缓存服务
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ruoyi-net
+
+# 定义网络
+networks:
+  ruoyi-net:
+    driver: bridge
+
+# 定义数据卷
+volumes:
+  mysql-data:
+  redis-data:
