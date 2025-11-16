@@ -1,39 +1,63 @@
-# v1
+# 项目快速启动（精简版）
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+提供两种方式：
+- 方法一：Docker 一键启动（推荐）
+- 方法二：本地分别启动（前端/后端独立调试）
 
-#### 软件架构
-软件架构说明
+## 方法一：Docker 一键启动（推荐）
 
+一次性启动前端、后端、数据库和 Redis。确保已安装 Docker 与 Docker Compose。
 
-#### 安装教程
+```bash
+docker compose up -d --wait
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+启动后访问：
+- 管理后台：http://localhost:80
+- 博客前台：http://localhost:81
+- 后端 API：http://localhost:8080
 
-#### 使用说明
+数据库/中间件（由 Docker 启动）：
+- MySQL：localhost:3307（库：`blog_system`，用户：`root`，密码：`root`）
+- Redis：localhost:6379
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+常用命令：
+```bash
+# 查看运行状态与日志
+docker compose ps
+docker compose logs -f
 
-#### 参与贡献
+# 停止并清理（含卷）
+docker compose down -v
+```
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+## 方法二：本地开发分别启动
 
+### 1. 后端 API（RuoYi）
+```bash
+cd ./api/RuoYi-Vue
+mvn -B -DskipTests -pl ruoyi-admin -am package
+java -jar ruoyi-admin/target/ruoyi-admin.jar
+```
+默认端口：http://localhost:8080  
+提示：如需使用 Docker 的 MySQL/Redis，请在配置中指向 `localhost:3307` 与 `localhost:6379`。
 
-#### 特技
+### 2. 管理后台（RuoYi-Vue3）
+```bash
+cd ./admin/RuoYi-Vue3
+yarn config set registry https://registry.npmmirror.com
+yarn install
+yarn dev
+```
+默认端口：http://localhost:5173
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+### 3. 博客前台（my-vitesse-app）
+```bash
+cd ./web/my-vitesse-app
+pnpm i
+pnpm dev
+```
+默认端口：http://localhost:3333
+
+## 默认账号（仅开发环境）
+- 管理后台：`admin` / `admin123`（请在生产环境修改）
