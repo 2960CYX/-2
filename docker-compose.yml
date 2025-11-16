@@ -59,7 +59,7 @@ services:
 
   # MySQL 数据库服务
   mysql:
-    image: mysql:8.0
+    image: docker.m.daocloud.io/library/mysql:8.0
     container_name: mysql
     restart: unless-stopped
     command: >-
@@ -71,7 +71,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=blog_system
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./api/RuoYi-Vue/sql:/docker-entrypoint-initdb.d:ro
@@ -85,7 +85,7 @@ services:
 
   # Redis 缓存服务
   redis:
-    image: redis:6.2
+    image: docker.m.daocloud.io/library/redis:6.2
     container_name: redis
     restart: unless-stopped
     ports:

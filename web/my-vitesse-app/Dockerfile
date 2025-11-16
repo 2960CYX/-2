@@ -1,5 +1,5 @@
 # --- 第一阶段：构建前端静态文件 ---
-FROM node:20-alpine AS builder
+FROM docker.m.daocloud.io/library/node:20-alpine AS builder
 
 # 启用 corepack 并激活 pnpm，确保与项目 packageManager 保持一致
 RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 安装依赖，使用淘宝镜像源加速
-RUN pnpm install --frozen-lockfile --prod=false --registry=https://registry.npmmirror.com
+RUN pnpm install --no-frozen-lockfile --prod=false --registry=https://registry.npmmirror.com
 
 # 复制所有源代码
 COPY . .
@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm run build
 
 # --- 第二阶段：创建 Nginx 运行镜像 ---
-FROM nginx:1.25-alpine
+FROM docker.m.daocloud.io/library/nginx:1.25-alpine
 
 # 移除默认的 Nginx 欢迎页面
 RUN rm /etc/nginx/conf.d/default.conf

@@ -28,7 +28,8 @@
     "quill": "^1.3.7",
     "vue": "catalog:frontend",
     "vue-i18n": "catalog:frontend",
-    "vue-router": "catalog:frontend"
+    "vue-router": "catalog:frontend",
+    "workbox-window": "^7.1.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

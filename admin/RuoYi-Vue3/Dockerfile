@@ -1,5 +1,5 @@
 # --- 第一阶段：构建前端静态文件 ---
-FROM node:20-alpine AS builder
+FROM docker.m.daocloud.io/library/node:20-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN yarn build:prod
 
 # --- 第二阶段：创建 Nginx 运行镜像 ---
-FROM nginx:1.25-alpine
+FROM docker.m.daocloud.io/library/nginx:1.25-alpine
 
 # 移除默认的 Nginx 欢迎页面
 RUN rm /etc/nginx/conf.d/default.conf
